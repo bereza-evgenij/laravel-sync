@@ -7,4 +7,4 @@ This packages is a adaptive copy of [arrilot/bitrix-sync](https://github.com/arr
 composer require bereza/laravel-sync
 ```
 
-After installation copy `ripcord.php` file from `vendor/bereza/laravel-sync/src/Prividers/Laravel/config` and paste to `config` folder.
+After installation copy `sync.php` file from `vendor/bereza/laravel-sync/src/Prividers/Laravel/config` and paste to `config` folder.
