@@ -506,11 +506,13 @@ class Sync
      */
     protected function adjustPhpSettings()
     {
-        // выставим максимальный таймаут (8 часов) чтобы postgres не отваливался по нему в случае,
-        // если есть какой-то долгий шаг без запросов в базу.
-        DB::connection()->statement('SET statement_timeout=28800');
-        if ($this->checkIlluminate()) {
-            Capsule\Manager::select('SET statement_timeout=28800');
+        if ($this->isUsedDB()) {
+            // выставим максимальный таймаут (8 часов) чтобы postgres не отваливался по нему в случае,
+            // если есть какой-то долгий шаг без запросов в базу.
+            DB::connection()->statement('SET statement_timeout=28800');
+            if ($this->checkIlluminate()) {
+                Capsule\Manager::select('SET statement_timeout=28800');
+            }
         }
     }
     
@@ -520,11 +522,13 @@ class Sync
      */
     protected function doProfileSql()
     {
-        DB::connection()->enableQueryLog();
-        
-        if ($this->checkIlluminate()) {
-            Capsule\Manager::enableQueryLog();
-            $this->sqlLogsIlluminate = true;
+        if ($this->isUsedDB()) {
+            DB::connection()->enableQueryLog();
+            
+            if ($this->checkIlluminate()) {
+                Capsule\Manager::enableQueryLog();
+                $this->sqlLogsIlluminate = true;
+            }
         }
         
         return $this;
@@ -650,5 +654,20 @@ class Sync
         }
         
         mail(implode(',', $this->config['emailFinalLogTo']), $subject, $message, $headers);
+    }
+    
+    /**
+     * Используется ли БД?
+     * @return bool
+     */
+    protected function isUsedDB()
+    {
+        try {
+            DB::connection()->getPdo();
+            
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }
