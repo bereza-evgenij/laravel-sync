@@ -509,9 +509,20 @@ class Sync
         if ($this->isUsedDB()) {
             // выставим максимальный таймаут (8 часов) чтобы postgres не отваливался по нему в случае,
             // если есть какой-то долгий шаг без запросов в базу.
-            DB::connection()->statement('SET statement_timeout=28800');
+            $dbDriver = DB::connection()->getDriverName();
+            if ($dbDriver == 'mysql') {
+                $timeoutVariable = 'wait_timeout';
+
+            } elseif ($dbDriver == 'pgsql') {
+                $timeoutVariable = 'statement_timeout';
+
+            } else {
+                return;
+            }
+
+            DB::connection()->statement("SET {$timeoutVariable}=28800");
             if ($this->checkIlluminate()) {
-                Capsule\Manager::select('SET statement_timeout=28800');
+                Capsule\Manager::select("SET {$timeoutVariable}=28800");
             }
         }
     }
