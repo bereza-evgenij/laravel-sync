@@ -24,6 +24,11 @@ class TelegramHandler extends AbstractProcessingHandler
     private $chatId;
 
     /**
+     * @var string|null
+     */
+    private $proxy;
+
+    /**
      * @param string $token Telegram API token
      * @param $chatId
      * @param int|string $level The minimum logging level at which this handler will be triggered
@@ -69,6 +74,15 @@ class TelegramHandler extends AbstractProcessingHandler
     }
 
     /**
+     * @param $proxy
+     * @return mixed
+     */
+    public function setProxy($proxy)
+    {
+        return $this->proxy = $proxy;
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @param array $record
@@ -76,12 +90,13 @@ class TelegramHandler extends AbstractProcessingHandler
     protected function write(array $record)
     {
         $content = $this->buildContent($record);
+        $host = $this->proxy ? $this->proxy : 'https://api.telegram.org';
 
         $ch = curl_init();
 
         $headers = ['Content-Type: application/json'];
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_URL, sprintf('https://api.telegram.org/bot%s/sendMessage', $this->token));
+        curl_setopt($ch, CURLOPT_URL, sprintf('%s/bot%s/sendMessage', $host, $this->token));
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $content);

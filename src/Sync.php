@@ -240,8 +240,10 @@ class Sync
         if ($this->config['sendAlertsToTelegram']) {
             $bot = $this->config['sendAlertsToTelegram'][0];
             $channel = $this->config['sendAlertsToTelegram'][1];
+            $proxy = isset($this->config['sendAlertsToTelegram'][2]) ? $this->config['sendAlertsToTelegram'][2] : '';
             if ($bot && $channel) {
                 $handler = new TelegramHandler($bot, $channel, Logger::ALERT);
+                $handler->setProxy($proxy);
                 $handler->setFormatter(new TelegramFormatter($this->getAlertTitle()));
                 $this->logger->pushHandler($handler);
             }
